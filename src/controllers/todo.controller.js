@@ -1,5 +1,3 @@
-const express = require("express");
-const app = express();
 const list = [];
 let nextId = 1;
 
@@ -11,16 +9,16 @@ function getTaskIndexById(id) {
   return list.findIndex((t) => t.id == id);
 }
 
-app.use((req, res, next) => {
-  console.log("MIDDLEWARE!");
-  next();
-});
+function all(req, res) {
+  console.log("GET /todos");
+  const check = req.query.check == "true";
+  const result = list.filter((task) => task.check == check);
 
-app.use(express.json());
+  res.send(result);
+}
 
-// CREATE
-app.post("/todo", (request, response) => {
-  const body = request.body;
+function create(req, res) {
+  const body = req.body;
   const todo = {
     id: nextId,
     title: body.title,
@@ -30,20 +28,10 @@ app.post("/todo", (request, response) => {
   list.push(todo);
   nextId++;
 
-  response.send("Ok!");
-});
+  res.send("Ok!");
+}
 
-// READ
-app.get("/todo", (req, res) => {
-  console.log("GET /todo");
-
-  const check = req.query.check == "true";
-  const result = list.filter((task) => task.check == check);
-
-  res.send(result);
-});
-
-app.get("/todo/:id", (req, res) => {
+function one(req, res) {
   // req.params // { id: "1" }
   const id = req.params.id;
   const result = getTaskById(id);
@@ -54,10 +42,9 @@ app.get("/todo/:id", (req, res) => {
   }
 
   res.send(result);
-});
+}
 
-// UPDATE
-app.put("/todo/:id", (req, res) => {
+function update(req, res) {
   const task = getTaskById(req.params.id);
   const body = req.body;
 
@@ -69,16 +56,14 @@ app.put("/todo/:id", (req, res) => {
   task.check = body.check;
 
   res.send("Ok!");
-});
+}
 
-// DELETE
-app.delete("/todo/:id", (req, res) => {
+function destroy(req, res) {
   const index = getTaskIndexById(req.params.id);
   list.splice(index, 1);
   res.send("Ok!");
-});
+}
 
-// Start my server
-app.listen(3000, () => {
-  console.log("Servidor en http://localhost:3000");
-});
+
+
+export default { all, create, one, update, destroy };
