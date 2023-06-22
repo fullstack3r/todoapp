@@ -1,3 +1,5 @@
+import respository from "../repositories/todo.repository.js";
+
 const list = [];
 let nextId = 1;
 
@@ -9,12 +11,14 @@ function getTaskIndexById(id) {
   return list.findIndex((t) => t.id == id);
 }
 
-function all(req, res) {
-  console.log("GET /todos");
-  const check = req.query.check == "true";
-  const result = list.filter((task) => task.check == check);
+async function all(req, res) {
+  let check;
+  if (req.query.check) {
+    check = req.query.check == "true";
+  }
 
-  res.send(result);
+  const values = await respository.all(check);
+  res.send(values);
 }
 
 function create(req, res) {
@@ -63,7 +67,5 @@ function destroy(req, res) {
   list.splice(index, 1);
   res.send("Ok!");
 }
-
-
 
 export default { all, create, one, update, destroy };
