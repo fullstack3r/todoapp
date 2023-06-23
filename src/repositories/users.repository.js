@@ -23,11 +23,14 @@ async function create(user) {
   }
 
   const collection = await getCollection();
-  if (user.password) {
-    user.password = await hash(user.password, 10);
-  }
+  const passwordHash = await hash(user.password, 10);
 
-  return collection.insertOne(user);
+  const newUser = {
+    email: user.email,
+    password: passwordHash,
+  };
+
+  return collection.insertOne(newUser);
 }
 
 export default { getByEmail, create };
