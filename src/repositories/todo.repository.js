@@ -1,11 +1,10 @@
 import { MongoClient } from "mongodb";
 
-const dburl =
-  "mongodb+srv://fullstack3r:_fullstack@portfolio-cluster.uatwpbi.mongodb.net/";
-const database = "todoapp";
-const dbcollection = "todos";
 
 async function getCollection() {
+  const dburl = process.env.MONGODB_URL;
+  const database = "todoapp";
+  const dbcollection = "todos";
   const client = await MongoClient.connect(dburl);
 
   return client.db(database).collection(dbcollection);
