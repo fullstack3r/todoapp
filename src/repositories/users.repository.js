@@ -1,4 +1,5 @@
 import { MongoClient } from "mongodb";
+import { hash } from "bcrypt";
 
 async function getCollection() {
   const dburl = process.env.MONGODB_URL;
@@ -16,8 +17,15 @@ async function getByEmail(email) {
 }
 
 async function create(user) {
-  const collection = await getCollection();
+  const exists = await getByEmail(user.email);
+  if (exists) {
+    return;
+  }
 
+  const collection = await getCollection();
+  if (user.password) {
+    user.password = await hash(user.password, 10);
+  }
 
   return collection.insertOne(user);
 }
