@@ -14,6 +14,6 @@ router.get("/:id", controller.one);
 router.put("/:id", controller.update);
 
 // DELETE
-router.delete("/:id", controller.destroy);
+router.delete("/:id", controller.remove);
 
 export default router;

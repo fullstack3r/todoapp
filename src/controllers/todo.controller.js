@@ -1,4 +1,4 @@
-import respository from "../repositories/todo.repository.js";
+import repository from "../repositories/todo.repository.js";
 
 const list = [];
 let nextId = 1;
@@ -17,55 +17,55 @@ async function all(req, res) {
     check = req.query.check == "true";
   }
 
-  const values = await respository.all(check);
+  const values = await repository.all(check);
   res.send(values);
 }
 
-function create(req, res) {
-  const body = req.body;
-  const todo = {
-    id: nextId,
-    title: body.title,
-    check: false,
-  };
+async function create(req, res) {
+  const { title } = req.body;
+  const todo = { title, check: false };
+  const result = await repository.create(todo);
 
-  list.push(todo);
-  nextId++;
+  if (result.acknowledged) {
+    res.status(201).send("Proyecto creado con exito!");
+  } else {
+    res.status(500).send("Error al crear el proyecto");
+  }
 
   res.send("Ok!");
 }
 
-function one(req, res) {
-  // req.params // { id: "1" }
+async function one(req, res) {
   const id = req.params.id;
-  const result = getTaskById(id);
+  const todo = await repository.one(id);
 
-  // validar que result exista!
-  if (!result) {
-    res.status(404).send("Task not found");
+  if (!todo) {
+    return res.status(404).send("Task not found");
   }
 
-  res.send(result);
+  res.json(todo);
 }
 
-function update(req, res) {
-  const task = getTaskById(req.params.id);
+export async function update(req, res) {
+  const id = req.params.id;
   const body = req.body;
-
-  if (!task) {
-    res.status(404).send("Task not found");
+  const result = await repository.update(id, body);
+  if (result.acknowledged) {
+    res.status(202).send("Tarea actualizada con exito");
+  } else {
+    res.status(500).send("ERROR: Tarea no actualizada!");
   }
-
-  task.title = body.title ? body.title : task.title;
-  task.check = body.check;
-
-  res.send("Ok!");
 }
 
-function destroy(req, res) {
-  const index = getTaskIndexById(req.params.id);
-  list.splice(index, 1);
-  res.send("Ok!");
+export async function remove(req, res) {
+  const id = req.params.id;
+  const result = await repository.remove(id);
+
+  if (result.acknowledged) {
+    res.status(202).send("Proyecto eliminado con exito!");
+  } else {
+    res.status(500).send("Imposible eliminar proyecto!");
+  }
 }
 
-export default { all, create, one, update, destroy };
+export default { all, create, one, update, remove };

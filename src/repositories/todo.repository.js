@@ -24,8 +24,31 @@ async function all(check) {
 }
 
 // one
-// create
-// update
-// delete
+async function one(id) {
+  const collection = await getCollection();
 
-export default { all };
+  return await collection.findOne({ _id: new ObjectId(id) });
+}
+
+// create
+async function create(project) {
+  const collection = await getCollection();
+
+  return await collection.insertOne(project);
+}
+
+// update
+async function update(id, data) {
+  const collection = await getCollection();
+
+  return collection.updateOne({ _id: new ObjectId(id) }, { $set: data });
+}
+
+// delete
+async function remove(id) {
+  const collection = await getCollection();
+
+  return await collection.deleteOne({ _id: new ObjectId(id) });
+}
+
+export default { all, one, create, update, remove };
